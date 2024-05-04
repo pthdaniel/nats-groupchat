@@ -9,8 +9,10 @@ import nats.aio.msg
 
 async def connect():
     # Config variables
-    port_num = 8000
-    client_name = f'client-{port_num}'
+    flask_port_num = 8000
+    nats_port_num = 4222
+    nats_server_addr = f'192.168.38.128:{nats_port_num}'
+    client_name = f'client-{flask_port_num}'
 
     # Callbacks
     async def error_cb(e):
@@ -39,6 +41,7 @@ async def connect():
 
     # Connect to NATS
     nc = await nats.connect(
+        servers=[f'nats://{nats_server_addr}'],
         name=client_name,
         error_cb=error_cb
         )
@@ -75,7 +78,7 @@ async def connect():
             return 'Message sent successfully.'
 
         # Start serving the webapp
-        app.run(debug=False, port=port_num, use_reloader=False)
+        app.run(debug=False, port=flask_port_num, use_reloader=False)
 
     # Serve website on a different thread
     flask_thread = threading.Thread(target=serve)
